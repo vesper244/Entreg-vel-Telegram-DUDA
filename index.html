@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rastreamento de Compra Única e Redirecionamento</title>
+
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    
+    // --- PIXEL CONFIGURADO ---
+    // Pixel Único: 707217888572619
+    fbq('init', '707217888572619');
+    
+    // Rastreia o evento padrão de visualização de página
+    fbq('track', 'PageView');
+    </script>
+    
+    <noscript>
+        <img height="1" width="1" style="display:none" 
+        src="https://www.facebook.com/tr?id=707217888572619&ev=PageView&noscript=1"/>
+    </noscript>
+</head>
+<body style="background-color: white;">
+
+    <script>
+        // Função para verificar se um cookie existe
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+
+        // Verifica se o cookie 'compra_registrada_pixel' NÃO existe
+        if (!getCookie('compra_registrada_pixel')) {
+            
+            // Dispara o evento de Purchase (Compra) com o valor de R$20.00
+            fbq('track', 'Purchase', {value: 20.00, currency: 'BRL'});
+            
+            // Cria o cookie (válido por 1 ano) para não disparar de novo.
+            document.cookie = "compra_registrada_pixel=true; max-age=31536000; path=/";
+
+            console.log("Evento de Purchase (R$20,00) disparado e cookie criado.");
+
+        } else {
+            console.log("Cookie encontrado. Evento de Purchase NÃO foi disparado novamente.");
+        }
+
+        // Redirecionamento para o Telegram após 0.5 segundos (500 milissegundos)
+        setTimeout(function() {
+            window.location.href = "https://t.me/+sxyar4GpPIxlMGMx";
+        }, 500);
+
+        console.log("Redirecionando em 0.5 segundos...");
+    </script>
+</body>
+</html>
