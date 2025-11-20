@@ -1,64 +1,349 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rastreamento de Compra Única e Redirecionamento</title>
+    <title>Obrigado pela sua compra!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 
     <script>
-    !function(f,b,e,v,n,t,s)
-    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-    n.queue=[];t=b.createElement(e);t.async=!0;
-    t.src=v;s=b.getElementsByTagName(e)[0];
-    s.parentNode.insertBefore(t,s)}(window, document,'script',
-    'https://connect.facebook.net/en_US/fbevents.js');
-    
-    // --- PIXEL CONFIGURADO ---
-    // Pixel Único: 707217888572619
-    fbq('init', '707217888572619');
-    
-    // Rastreia o evento padrão de visualização de página
-    fbq('track', 'PageView');
+      !function (f, b, e, v, n, t, s) {
+        if (f.fbq) return; 
+        n = f.fbq = function () {
+          n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+        };
+        if (!f._fbq) f._fbq = n; 
+        n.push = n; 
+        n.loaded = !0; 
+        n.version = '2.0';
+        n.queue = []; 
+        t = b.createElement(e); 
+        t.async = !0;
+        t.src = v; 
+        s = b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t, s)
+      }(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+
+      (async function initPixel() {
+        const PIXEL_ID = "707217888572619";
+
+        try {
+          function getCookie(name) {
+            const value = "; " + document.cookie;
+            const parts = value.split("; " + name + "=");
+            if (parts.length === 2) return parts.pop().split(";").shift();
+          }
+
+          const urlParams = new URLSearchParams(window.location.search);
+          const fbclid = urlParams.get('fbclid');
+          const fbp = getCookie('_fbp');
+          const fbc = fbclid ? 'fb.1.' + Date.now() + '.' + fbclid : getCookie('_fbc');
+
+          // Captura UTMs
+          const utm_source = urlParams.get('utm_source');
+          const utm_campaign = urlParams.get('utm_campaign');
+          const utm_medium = urlParams.get('utm_medium');
+          const utm_content = urlParams.get('utm_content');
+          const utm_term = urlParams.get('utm_term');
+          const external_id = urlParams.get('session_id');
+
+          // Tenta pegar geolocalização para melhorar score do Pixel
+          const response = await fetch("https://ipapi.co/json/");
+          const data = await response.json();
+
+          fbq('init', PIXEL_ID, {
+            ct: data.city || "",
+            st: data.region || "",
+            zp: data.postal || "",
+            country: data.country_name || ""
+          });
+
+          fbq('track', 'PageView', {
+            fbp,
+            fbc,
+            fbclid,
+            external_id,
+            utm_source,
+            utm_campaign,
+            utm_medium,
+            utm_content,
+            utm_term,
+            visitor_ip: data.ip,
+            city: data.city,
+            region: data.region,
+            country: data.country,
+            timezone: data.timezone,
+            isp: data.org
+          });
+
+          console.log('✅ Pixel inicializado com geolocalização');
+        } catch (error) {
+          console.warn('⚠️ Falha geolocalização:', error);
+          fbq('init', PIXEL_ID);
+          fbq('track', 'PageView');
+        }
+      })();
     </script>
-    
-    <noscript>
-        <img height="1" width="1" style="display:none" 
-        src="https://www.facebook.com/tr?id=707217888572619&ev=PageView&noscript=1"/>
-    </noscript>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0a0a; /* Cor de fundo escura */
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* Removido o bloco body::before que carregava a imagem de fundo */
+
+        .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .card {
+            background: linear-gradient(145deg, rgba(26, 26, 26, 0.95), rgba(15, 15, 15, 0.95));
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .pulse-dot {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .btn-disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .btn-enabled {
+            opacity: 1;
+            cursor: pointer;
+            pointer-events: auto;
+        }
+    </style>
 </head>
-<body style="background-color: white;">
+
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div class="container w-full max-w-lg">
+        <div class="card rounded-3xl p-10 md:p-14 shadow-2xl">
+
+            <h1 class="text-3xl md:text-4xl font-bold text-white text-center mb-2">Compra Confirmada!</h1>
+
+            <div class="flex items-center justify-center gap-2 mb-6">
+                <div class="flex items-center gap-1.5 bg-green-500/10 px-4 py-1.5 rounded-full">
+                    <div class="w-2 h-2 rounded-full bg-green-500 pulse-dot"></div>
+                    <span class="text-green-400 text-sm font-medium">Pagamento Aprovado</span>
+                </div>
+            </div>
+
+            <p class="text-gray-400 text-center mb-8 text-sm md:text-base leading-relaxed">
+                Para acessar seu pedido com segurança,<br/>confirme seu e-mail abaixo
+            </p>
+
+            <form id="accessForm" class="space-y-6">
+                <div>
+                    <label class="block text-gray-400 text-xs font-semibold mb-3 uppercase tracking-wider">
+                        Seu E-mail
+                    </label>
+
+                    <input 
+                        type="email" 
+                        id="emailInput"
+                        placeholder="exemplo@email.com" 
+                        class="w-full bg-neutral-800/50 border border-neutral-700 text-white rounded-xl px-5 py-4 text-base focus:border-pink-500 focus:ring-2 focus:ring-pink-500/30 transition-all placeholder-gray-500"
+                        required
+                    >
+
+                    <p id="errorMsg" class="text-red-400 text-xs mt-2.5 hidden">
+                        <svg class="w-3.5 h-3.5 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"/>
+                        </svg>
+                        Digite um e-mail válido
+                    </p>
+                </div>
+
+                <button 
+                    type="submit"
+                    id="unlockBtn"
+                    class="block w-full bg-gradient-to-r from-pink-600 to-pink-700 hover:from-pink-500 hover:to-pink-600 text-white font-bold py-4 px-6 rounded-xl text-center transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-xl shadow-pink-600/30 btn-disabled"
+                    disabled
+                >
+                    <span class="flex items-center justify-center gap-2">
+                        Acessar Meu Pedido
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                        </svg>
+                    </span>
+                </button>
+            </form>
+
+            <div class="mt-10 pt-6 border-t border-neutral-800">
+                <p class="text-gray-500 text-xs text-center flex items-center justify-center gap-2">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                    Seus dados estão protegidos e seguros
+                </p>
+            </div>
+
+        </div>
+    </div>
 
     <script>
-        // Função para verificar se um cookie existe
-        function getCookie(name) {
-            const value = `; ${document.cookie}`;
-            const parts = value.split(`; ${name}=`);
-            if (parts.length === 2) return parts.pop().split(';').shift();
+      const TELEGRAM_LINK = "https://t.me/xxxxxxx"; // <<< TROCAR PELO SEU
+
+      const emailInput = document.getElementById("emailInput");
+      const unlockBtn = document.getElementById("unlockBtn");
+      const form = document.getElementById("accessForm");
+      const errorMsg = document.getElementById("errorMsg");
+
+      function isValidEmail(email) {
+        return /^[^\s@]+@[^\s@]+\.(com|com\.br)$/i.test(email);
+      }
+
+      function getUTMParams() {
+        const params = new URLSearchParams(window.location.search);
+        return {
+          utm_source: params.get('utm_source') || '',
+          utm_medium: params.get('utm_medium') || '',
+          utm_campaign: params.get('utm_campaign') || '',
+          utm_content: params.get('utm_content') || '',
+          utm_term: params.get('utm_term') || ''
+        };
+      }
+
+      const utm = getUTMParams();
+
+      let transactionId = localStorage.getItem("transactionId");
+      if (!transactionId) {
+        transactionId = 'TX-' + new Date().getTime();
+        localStorage.setItem("transactionId", transactionId);
+      }
+
+      // Função auxiliar para disparar o evento
+      async function trackPurchase(extra = {}) {
+        try {
+          // Se falhar o IPAPI, segue sem ele
+          let geo = {};
+          try {
+             const response = await fetch("https://ipapi.co/json/");
+             geo = await response.json();
+          } catch(e) { console.log("Erro geo track", e); }
+
+          fbq('track', 'Purchase', {
+            value: 10.99,
+            currency: 'BRL',
+            transaction_id: transactionId,
+            client_user_agent: navigator.userAgent,
+            client_ip_address: geo.ip,
+            external_id: transactionId,
+            ...geo,
+            ...utm,
+            ...extra
+          });
+
+        } catch (err) {
+          // Fallback total
+          fbq('track', 'Purchase', {
+            value: 10.99,
+            currency: 'BRL',
+            transaction_id: transactionId,
+            ...utm,
+            ...extra
+          });
         }
+      }
 
-        // Verifica se o cookie 'compra_registrada_pixel' NÃO existe
-        if (!getCookie('compra_registrada_pixel')) {
-            
-            // Dispara o evento de Purchase (Compra) com o valor de R$20.00
-            fbq('track', 'Purchase', {value: 20.00, currency: 'BRL'});
-            
-            // Cria o cookie (válido por 1 ano) para não disparar de novo.
-            document.cookie = "compra_registrada_pixel=true; max-age=31536000; path=/";
+      emailInput.addEventListener("input", () => {
+        const email = emailInput.value.trim();
+        const valid = isValidEmail(email);
 
-            console.log("Evento de Purchase (R$20,00) disparado e cookie criado.");
+        unlockBtn.disabled = !valid;
 
+        if (valid) {
+          unlockBtn.classList.remove("btn-disabled");
+          unlockBtn.classList.add("btn-enabled");
+          errorMsg.classList.add('hidden');
+          emailInput.classList.remove("border-red-500");
+          emailInput.classList.add("border-green-500");
         } else {
-            console.log("Cookie encontrado. Evento de Purchase NÃO foi disparado novamente.");
+          unlockBtn.classList.add("btn-disabled");
+          unlockBtn.classList.remove("btn-enabled");
+          emailInput.classList.remove("border-green-500");
+
+          if (email.length > 3) {
+            errorMsg.classList.remove('hidden');
+            emailInput.classList.add("border-red-500");
+          } else {
+            errorMsg.classList.add('hidden');
+            emailInput.classList.remove("border-red-500");
+          }
+        }
+      });
+
+      // hash email
+      async function hashEmail(email) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(email);
+        const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+        return Array.from(new Uint8Array(hashBuffer))
+          .map(b => b.toString(16).padStart(2, "0"))
+          .join("");
+      }
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const email = emailInput.value.trim().toLowerCase();
+
+        if (!isValidEmail(email)) {
+          errorMsg.classList.remove("hidden");
+          emailInput.classList.add("border-red-500");
+          return;
         }
 
-        // Redirecionamento para o Telegram após 0.5 segundos (500 milissegundos)
-        setTimeout(function() {
-            window.location.href = "https://t.me/+sxyar4GpPIxlMGMx";
-        }, 500);
+        unlockBtn.disabled = true;
+        unlockBtn.classList.add("btn-disabled");
+        unlockBtn.innerHTML = `
+          <span class="flex items-center justify-center gap-2">
+            <svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10" stroke-width="4"></circle>
+              <path d="M4 12a8 8 0 018-8" stroke-width="4" stroke-linecap="round"></path>
+            </svg>
+            Redirecionando para o Telegram...
+          </span>
+        `;
 
-        console.log("Redirecionando em 0.5 segundos...");
+        try {
+          const hashedEmail = await hashEmail(email);
+
+          // Dispara o evento ÚNICO aqui
+          trackPurchase({ em: hashedEmail });
+
+          setTimeout(() => {
+            window.location.href = TELEGRAM_LINK;
+          }, 1000);
+
+        } catch (err) {
+          console.error("Erro hash:", err);
+          trackPurchase();
+        }
+      });
     </script>
+
 </body>
 </html>
